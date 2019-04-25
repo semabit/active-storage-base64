@@ -25,8 +25,9 @@ module ActiveStorageSupport
           end
 
           def #{name}=(attachable)
+            return if attachable.is_a?(Hash) && attachable.blank?
             attachment_changes["#{name}"] =
-              if attachable.nil?
+              if attachable.nil? || (attachable.is_a?(Hash) && attachable.symbolize_keys.fetch(:remove, false))
                 ActiveStorage::Attached::Changes::DeleteOne.new("#{name}", self)
               else
                 ActiveStorage::Attached::Changes::CreateOne.new("#{name}", self, ActiveStorageSupport::Base64Attach.attachment_from_data(attachable))
